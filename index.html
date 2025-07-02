@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>P2P Мессенджер с Друзьями и Выходом из Аккаунта</title>
+  <title>P2P Мессенджер с Авторизацией</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; display: flex; gap: 20px; }
-    #friendList { width: 220px; border-right: 1px solid #ccc; padding-right: 10px; }
+    #friendList { width: 220px; border-right: 1px solid #ccc; padding-right: 10px; display: none; }
     #chatArea { flex-grow: 1; padding-left: 10px; }
     #chat { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px; background: #f9f9f9; }
     input, button, textarea { width: 100%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
@@ -30,7 +30,12 @@
 
   <div id="chatArea">
     <h2>P2P Мессенджер</h2>
-    <div id="registerSection">
+    <div id="authSection">
+      <button onclick="showRegister()">Регистрация</button>
+      <button onclick="loginUser()">Войти в аккаунт</button>
+    </div>
+
+    <div id="registerSection" style="display:none;">
       <input type="text" id="username" placeholder="Ваш логин">
       <input type="text" id="displayName" placeholder="Ваше имя">
       <input type="text" id="avatar" placeholder="URL аватарки (по желанию)">
@@ -69,6 +74,11 @@
       });
     }
 
+    function showRegister() {
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('registerSection').style.display = 'block';
+    }
+
     function registerUser() {
       const username = document.getElementById('username').value;
       const displayName = document.getElementById('displayName').value;
@@ -79,7 +89,16 @@
       }
       const userData = { username, displayName, avatar };
       localStorage.setItem('userData', JSON.stringify(userData));
-      initPeer();
+      startSession();
+    }
+
+    function loginUser() {
+      const saved = localStorage.getItem('userData');
+      if (saved) {
+        startSession();
+      } else {
+        alert('Нет сохраненного аккаунта. Сначала зарегистрируйтесь.');
+      }
     }
 
     function logout() {
@@ -87,12 +106,18 @@
       location.reload();
     }
 
+    function startSession() {
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('registerSection').style.display = 'none';
+      document.getElementById('friendList').style.display = 'block';
+      document.getElementById('chatSection').style.display = 'block';
+      initPeer();
+    }
+
     function initPeer() {
       peer = new Peer();
       peer.on('open', id => {
         document.getElementById('myId').innerText = id;
-        document.getElementById('registerSection').style.display = 'none';
-        document.getElementById('chatSection').style.display = 'block';
         notifyFriendsAboutNewId(id);
       });
 
@@ -128,6 +153,11 @@
     }
 
     function addFriend() {
+      const user = localStorage.getItem('userData');
+      if (!user) {
+        alert('Сначала войдите или зарегистрируйтесь.');
+        return;
+      }
       const peerId = document.getElementById('friendId').value;
       if (!peerId) return;
 
@@ -177,8 +207,6 @@
     }
 
     window.onload = function() {
-      const saved = localStorage.getItem('userData');
-      if (saved) initPeer();
       renderFriends();
     }
   </script>
