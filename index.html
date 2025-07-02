@@ -11,11 +11,13 @@
         <h1>P2P Messenger</h1>
         <div class="auth">
             <input type="text" id="userId" placeholder="Your ID (e.g., user1)" />
-            <button onclick="initPeer()">Connect</button>
+            <button onclick="checkAndInitPeer()">Connect</button>
+            <span id="userIdStatus"></span>
         </div>
         <div class="connect">
             <input type="text" id="peerId" placeholder="Friend's ID" />
-            <button onclick="connectToPeer()">Connect to Friend</button>
+            <button onclick="checkPeerOnline()">Check Friend</button>
+            <span id="peerIdStatus"></span>
         </div>
         <div class="chat">
             <div id="messages"></div>
