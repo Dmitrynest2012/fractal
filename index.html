@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Messenger</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>P2P Messenger</h1>
+        <div class="auth">
+            <input type="text" id="userId" placeholder="Your ID (e.g., user1)" />
+            <button onclick="initPeer()">Connect</button>
+        </div>
+        <div class="connect">
+            <input type="text" id="peerId" placeholder="Friend's ID" />
+            <button onclick="connectToPeer()">Connect to Friend</button>
+        </div>
+        <div class="chat">
+            <div id="messages"></div>
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
