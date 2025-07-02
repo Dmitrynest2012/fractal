@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>P2P Мессенджер с Авторизацией</title>
+  <title>P2P Мессенджер с Поиском Друзей</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; display: flex; gap: 20px; }
     #friendList { width: 220px; border-right: 1px solid #ccc; padding-right: 10px; display: none; }
@@ -17,6 +17,8 @@
     .friend-item { cursor: pointer; padding: 5px; border-radius: 4px; }
     .friend-item:hover { background-color: #e0e0e0; }
     #logoutBtn { background-color: #f44336; margin-top: 10px; }
+    #searchResult { border: 1px solid #ccc; padding: 10px; margin-top: 5px; background-color: #f1f1f1; display: none; }
+    #searchResult img { width: 50px; height: 50px; border-radius: 50%; }
   </style>
 </head>
 <body>
@@ -24,7 +26,8 @@
     <h3>Друзья</h3>
     <div id="friends"></div>
     <input type="text" id="friendId" placeholder="Peer ID друга">
-    <button onclick="addFriend()">Добавить друга</button>
+    <button onclick="searchFriend()">Поиск друга</button>
+    <div id="searchResult"></div>
     <button id="logoutBtn" onclick="logout()">Выйти из аккаунта</button>
   </div>
 
@@ -129,7 +132,7 @@
             updateFriendId(data.username, connection.peer);
           } else if (data.type === 'request-info') {
             const user = JSON.parse(localStorage.getItem('userData'));
-            connection.send({ type: 'user-info', username: user.username, displayName: user.displayName });
+            connection.send({ type: 'user-info', username: user.username, displayName: user.displayName, avatar: user.avatar });
           }
         });
       });
@@ -152,12 +155,7 @@
       }
     }
 
-    function addFriend() {
-      const user = localStorage.getItem('userData');
-      if (!user) {
-        alert('Сначала войдите или зарегистрируйтесь.');
-        return;
-      }
+    function searchFriend() {
       const peerId = document.getElementById('friendId').value;
       if (!peerId) return;
 
@@ -167,11 +165,22 @@
       });
       c.on('data', data => {
         if (data.type === 'user-info') {
-          friends.push({ username: data.username, displayName: data.displayName, peerId });
-          saveFriends();
-          alert('Друг добавлен: ' + data.displayName);
+          const container = document.getElementById('searchResult');
+          container.innerHTML = `<p><strong>${data.displayName}</strong> (${data.username})</p>`;
+          if (data.avatar) {
+            container.innerHTML += `<img src="${data.avatar}" alt="Avatar">`;
+          }
+          container.innerHTML += `<button onclick='confirmAddFriend("${data.username}", "${data.displayName}", "${peerId}")'>Добавить в друзья</button>`;
+          container.style.display = 'block';
         }
       });
+    }
+
+    function confirmAddFriend(username, displayName, peerId) {
+      friends.push({ username, displayName, peerId });
+      saveFriends();
+      document.getElementById('searchResult').style.display = 'none';
+      alert('Друг добавлен: ' + displayName);
     }
 
     function startChat(friend) {
